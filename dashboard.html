@@ -426,6 +426,172 @@ td.right { text-align: right; }
 
 .no-data { padding: var(--space-2xl); text-align: center; color: var(--text-faint); font-size: var(--text-sm); }
 
+/* ═══════════ CLASSIFICATION FOURNISSEURS ═══════════ */
+.pd-btn-classify {
+  display: inline-block; padding: 0.18em 0.55em;
+  font-family: var(--font-mono); font-size: var(--text-2xs);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-faint);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-sm); background: transparent; cursor: pointer;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+  white-space: nowrap;
+}
+.pd-btn-classify:hover { color: var(--accent); border-color: var(--accent); }
+.tag-category {
+  display: inline-block; padding: 0.13em 0.4em; border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: var(--text-2xs);
+  background: color-mix(in oklab, var(--text-faint) 10%, transparent);
+  color: var(--text-faint);
+}
+.tag[data-interactive] { cursor: pointer; }
+.tag[data-interactive]:hover { opacity: 0.75; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: oklch(0% 0 0 / 55%);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.modal-card {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-lg); padding: var(--space-l);
+  width: min(440px, 90vw);
+  box-shadow: 0 16px 48px oklch(0% 0 0 / 40%);
+}
+.modal-title {
+  font-family: var(--font-display); font-size: var(--text-lg);
+  font-weight: 400; color: var(--text); margin-bottom: var(--space-3xs);
+}
+.modal-supplier-name {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--accent); letter-spacing: 0.08em;
+  margin-bottom: var(--space-m);
+  border-bottom: var(--border-hairline) solid var(--line);
+  padding-bottom: var(--space-xs);
+}
+.form-group { margin-bottom: var(--space-m); }
+.form-group > label {
+  display: block; font-family: var(--font-mono); font-size: var(--text-2xs);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: var(--space-xs);
+}
+.dept-btns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xs); }
+.dept-btn {
+  padding: var(--space-xs) var(--space-s); font-family: var(--font-mono);
+  font-size: var(--text-xs); letter-spacing: 0.06em;
+  color: var(--text-soft);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-sm); background: transparent; cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard); text-align: center;
+}
+.dept-btn:hover { border-color: var(--accent); color: var(--text); }
+.dept-btn.selected {
+  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  border-color: var(--accent); color: var(--accent);
+}
+select.pd-select {
+  width: 100%; padding: var(--space-xs) var(--space-s);
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--text); background: var(--surface-sunken);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-sm); outline: none; cursor: pointer;
+}
+select.pd-select:focus { border-color: var(--accent); }
+.modal-actions {
+  display: flex; gap: var(--space-s); justify-content: flex-end;
+  margin-top: var(--space-l);
+  border-top: var(--border-hairline) solid var(--line);
+  padding-top: var(--space-m);
+}
+.btn-cancel {
+  padding: var(--space-xs) var(--space-m); font-family: var(--font-mono);
+  font-size: var(--text-xs); color: var(--text-faint);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-sm); background: transparent; cursor: pointer;
+  transition: color var(--dur-fast);
+}
+.btn-cancel:hover { color: var(--text); }
+.btn-save {
+  padding: var(--space-xs) var(--space-m); font-family: var(--font-mono);
+  font-size: var(--text-xs); color: var(--text-on-accent);
+  background: var(--accent); border: none;
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: background var(--dur-fast);
+}
+.btn-save:hover { background: var(--accent-hover); }
+
+/* Classify banner */
+.classify-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: color-mix(in oklab, var(--accent) 8%, var(--surface-raised));
+  border: var(--border-hairline) solid color-mix(in oklab, var(--accent) 22%, transparent);
+  border-radius: var(--radius-md); padding: var(--space-xs) var(--space-m);
+  margin-bottom: var(--space-m); gap: var(--space-m);
+}
+.classify-banner-text {
+  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-soft);
+}
+.classify-banner-text strong { color: var(--accent); }
+.pd-btn-next {
+  padding: 0.28em 0.75em; font-family: var(--font-mono);
+  font-size: var(--text-2xs); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); border: var(--border-hairline) solid var(--accent);
+  border-radius: var(--radius-sm); background: transparent; cursor: pointer;
+  white-space: nowrap; transition: all var(--dur-fast);
+}
+.pd-btn-next:hover { background: var(--accent); color: var(--text-on-accent); }
+
+/* Marges HORECA */
+.ca-entry-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: var(--space-s); margin-bottom: var(--space-l);
+}
+.ca-field {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line);
+  border-radius: var(--radius-lg); padding: var(--space-m);
+}
+.ca-field > label {
+  display: block; font-family: var(--font-mono); font-size: var(--text-2xs);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: var(--space-xs);
+}
+.ca-input-wrap {
+  display: flex; align-items: center; gap: var(--space-xs);
+  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-faint);
+}
+.ca-input-wrap input {
+  flex: 1; padding: var(--space-xs);
+  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text);
+  background: var(--surface-sunken);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-sm); outline: none; width: 100%;
+}
+.ca-input-wrap input:focus { border-color: var(--accent); }
+.kpi-bench { margin-top: var(--space-xs); display: flex; flex-direction: column; gap: 3px; }
+.kpi-bench-label { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-faint); }
+.kpi-bench-bar {
+  height: 4px; border-radius: 2px;
+  background: color-mix(in oklab, var(--text-faint) 18%, transparent); overflow: hidden;
+}
+.kpi-bench-fill { height: 100%; border-radius: 2px; transition: width 0.4s, background 0.4s; }
+.status-ok   { color: var(--positive); }
+.status-warn { color: oklch(0.7 0.18 85); }
+.status-bad  { color: var(--negative); }
+
+/* Cross-site nav */
+.cross-nav-link {
+  display: flex; align-items: center; gap: var(--space-2xs);
+  font-family: var(--font-mono); font-size: var(--text-2xs);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-faint); text-decoration: none;
+  padding: var(--space-3xs) 0; transition: color var(--dur-fast);
+}
+.cross-nav-link:hover { color: var(--accent); }
+
 /* ═══════════ THEME TOGGLE BUTTON ═══════════ */
 .pd-btn-theme {
   display: inline-flex;
@@ -478,9 +644,16 @@ td.right { text-align: right; }
     <span class="nav-code">05</span>Alertes &amp; Actions
     <span class="pill pill-red" style="margin-left:auto">5</span>
   </div>
+  <div class="nav-item" data-page="p-marges" onclick="nav('p-marges')">
+    <span class="nav-code">06</span>Marges HORECA
+  </div>
 
   <div class="sidebar-footer">
     <button class="pd-btn-theme" id="theme-btn" onclick="toggleTheme()">Thème Papier</button>
+    <div style="border-top:var(--border-hairline) solid var(--line);padding-top:var(--space-xs);display:flex;flex-direction:column;gap:2px;">
+      <a class="cross-nav-link" href="../index.html">← Accueil</a>
+      <a class="cross-nav-link" href="../site_educatif.html">Comptabilité</a>
+    </div>
     <span class="pd-eyebrow" style="text-align:center;">Généré 12/06/2026</span>
   </div>
 </nav>
@@ -1507,8 +1680,8 @@ td.right { text-align: right; }
                 <span class="insight-cat">Classification</span>
               </div>
               <div class="insight-title">25.1% des achats (€44,819) ne sont pas encore classés</div>
-              <div class="insight-detail">Ces achats ne rentrent dans aucun ratio food/beverage cost. Ouvre fournisseurs_mapping.csv et complète les départements.</div>
-              <div class="insight-action">Classer les fournisseurs restants dans fournisseurs_mapping.csv puis relancer etl.py</div>
+              <div class="insight-detail">Ces achats ne rentrent dans aucun ratio food/beverage cost. Clique sur le tag "Non classé" de chaque fournisseur dans la page Fournisseurs pour les reclasser directement ici.</div>
+              <div class="insight-action" style="cursor:pointer" onclick="nav('p-fournisseurs')">Aller classer les fournisseurs → page 04</div>
             </div>
             <div class="insight medium">
               <div class="insight-header">
@@ -1561,7 +1734,124 @@ td.right { text-align: right; }
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════ MARGES HORECA -->
+<div id="p-marges" class="page">
+  <div class="page-title">Marges HORECA</div>
+  <div class="page-sub">Food Cost · Beverage Cost · Prime Cost — Benchmarks secteur belge</div>
+
+  <!-- Classify banner -->
+  <div class="classify-banner" id="classify-banner" style="display:none">
+    <div class="classify-banner-text">
+      <strong id="classify-banner-count">0</strong> fournisseur(s) non classé(s) — les ratios seront plus précis une fois tous classés
+    </div>
+    <button class="pd-btn-next" onclick="nav('p-fournisseurs')">Classer →</button>
+  </div>
+
+  <!-- CA inputs -->
+  <div class="section-label" style="margin-top:0">Chiffre d'affaires — saisie mensuelle (HTVA)</div>
+  <div class="ca-entry-grid" id="ca-grid">
+    <!-- Generated by JS -->
+  </div>
+  <div style="display:flex;gap:var(--space-s);margin-bottom:var(--space-l)">
+    <button class="btn-save" onclick="saveCA()" style="font-size:var(--text-xs)">Enregistrer le CA</button>
+    <button class="btn-cancel" onclick="resetCA()" style="font-size:var(--text-xs)">Réinitialiser</button>
+  </div>
+
+  <!-- KPI Marges -->
+  <div class="kpi-grid" id="marges-kpi-grid">
+    <!-- Generated by JS -->
+  </div>
+
+  <!-- Benchmark table -->
+  <div class="section-label">Benchmarks HORECA — Belgique (restauration gastronomique / bistrot)</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Indicateur</th>
+        <th>Votre ratio</th>
+        <th>Cible</th>
+        <th>Seuil max</th>
+        <th>Statut</th>
+      </tr></thead>
+      <tbody id="bench-tbody">
+        <!-- Generated by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Méthodologie -->
+  <div class="chart-card" style="margin-bottom:var(--space-l)">
+    <div class="chart-title">Méthodologie — comment lire ces ratios</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-m);margin-top:var(--space-s)">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:var(--space-2xs)">Food Cost %</div>
+        <div style="font-size:var(--text-sm);color:var(--text-soft)">Achats cuisine HTVA ÷ CA cuisine HTVA. Mesure ce que tu dépenses en matière première pour chaque euro de vente cuisine. En gastronomie belge, la cible est <strong style="color:var(--text)">28–34%</strong>.</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:var(--space-2xs)">Beverage Cost %</div>
+        <div style="font-size:var(--text-sm);color:var(--text-soft)">Achats salle HTVA ÷ CA boissons HTVA. Les boissons ont naturellement une marge brute plus élevée. Cible <strong style="color:var(--text)">18–28%</strong>. Au-delà de 30%, les prix de vente sont trop bas ou les achats mal négociés.</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:var(--space-2xs)">Prime Cost</div>
+        <div style="font-size:var(--text-sm);color:var(--text-soft)">Food Cost + Beverage Cost + masse salariale cuisine &amp; salle. En HORECA, c'est le ratio clé. Doit rester sous <strong style="color:var(--text)">65%</strong> du CA pour garantir la viabilité. La masse salariale n'est pas dans ces calculs — à ajouter manuellement.</div>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:var(--space-2xs)">Coefficient multiplicateur</div>
+        <div style="font-size:var(--text-sm);color:var(--text-soft)">Prix de vente TTC ÷ coût matière. Indique combien de fois tu multiplies le coût pour fixer ton prix. En restauration belge, la fourchette standard est <strong style="color:var(--text)">×3.0 à ×3.5</strong>. En dessous de ×2.8, la marge est trop faible.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
+
+<!-- ══════════════════════════════════════════════════ MODAL CLASSIFICATION -->
+<div class="modal-overlay" id="classify-modal" style="display:none" onclick="if(event.target===this)closeClassifyModal()">
+  <div class="modal-card">
+    <div class="modal-title">Classer le fournisseur</div>
+    <div class="modal-supplier-name" id="modal-supplier-name">—</div>
+
+    <div class="form-group">
+      <label>Département</label>
+      <div class="dept-btns">
+        <button class="dept-btn" data-dept="cuisine" onclick="selectDept(this,'cuisine')">🍽 Cuisine</button>
+        <button class="dept-btn" data-dept="salle"   onclick="selectDept(this,'salle')">🍷 Salle &amp; Bar</button>
+        <button class="dept-btn" data-dept="general" onclick="selectDept(this,'general')">🏢 Général</button>
+        <button class="dept-btn" data-dept="nc"      onclick="selectDept(this,'nc')">❓ Non classé</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Catégorie produit <span style="color:var(--text-faint);font-weight:400">(optionnel)</span></label>
+      <select class="pd-select" id="modal-category">
+        <option value="">— Sélectionner —</option>
+        <optgroup label="Cuisine">
+          <option value="Viande &amp; volaille">Viande &amp; volaille</option>
+          <option value="Poisson &amp; fruits de mer">Poisson &amp; fruits de mer</option>
+          <option value="Légumes &amp; épicerie">Légumes &amp; épicerie</option>
+          <option value="Pain &amp; viennoiserie">Pain &amp; viennoiserie</option>
+          <option value="Produits laitiers &amp; fromages">Produits laitiers &amp; fromages</option>
+        </optgroup>
+        <optgroup label="Salle &amp; Bar">
+          <option value="Bières &amp; softs">Bières &amp; softs</option>
+          <option value="Vins &amp; spiritueux">Vins &amp; spiritueux</option>
+          <option value="Eaux &amp; softs">Eaux &amp; softs</option>
+        </optgroup>
+        <optgroup label="Général">
+          <option value="Hygiène &amp; entretien">Hygiène &amp; entretien</option>
+          <option value="Emballages &amp; consommables">Emballages &amp; consommables</option>
+          <option value="Énergie &amp; services">Énergie &amp; services</option>
+          <option value="Divers">Divers</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeClassifyModal()">Annuler</button>
+      <button class="btn-save"   onclick="saveClassification()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -1702,6 +1992,291 @@ Plotly.newPlot('ch-salle-donut', [{
   hovertemplate:'%{label}<br>€%{value:,.0f}<br>%{percent}<extra></extra>'
 }], layout({showlegend:true, margin:{t:10,r:10,b:10,l:10},
              legend:{orientation:'v', font:{size:10}}}), PLOTLY_CFG);
+
+/* ═══════════════════════════════════════════════════════
+   CLASSIFICATION FOURNISSEURS
+   Storage key: pd-fournisseurs-v1
+   Structure: { [supplierName]: { dept: 'cuisine'|'salle'|'general'|'nc', cat: string } }
+═══════════════════════════════════════════════════════ */
+
+const STORE_KEY  = 'pd-fournisseurs-v1';
+const DEPT_LABELS = { cuisine:'Cuisine', salle:'Salle', general:'Général', nc:'Non classé' };
+const DEPT_CLASSES = { cuisine:'tag-cuisine', salle:'tag-salle', general:'tag-general', nc:'tag-nc' };
+
+// Hardcoded ETL totals
+const ACH_CUISINE = 50417;
+const ACH_SALLE   = 80097;
+const ACH_GENERAL = 3273;
+
+let _classifyTarget = null;
+let _classifyDept   = null;
+
+function loadOverrides() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveOverrides(data) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function initClassification() {
+  const overrides = loadOverrides();
+  document.querySelectorAll('#p-fournisseurs tbody tr').forEach(row => {
+    const nameCell = row.querySelector('td:first-child');
+    const tagCell  = row.querySelector('td:nth-child(2)');
+    if (!nameCell || !tagCell) return;
+    const name = nameCell.textContent.trim();
+    const tagEl = tagCell.querySelector('.tag');
+    if (!tagEl) return;
+
+    if (overrides[name]) {
+      const ov = overrides[name];
+      tagEl.className = 'tag ' + (DEPT_CLASSES[ov.dept] || 'tag-nc');
+      tagEl.textContent = DEPT_LABELS[ov.dept] || 'Non classé';
+      if (ov.cat && !tagCell.querySelector('.tag-category')) {
+        const catSpan = document.createElement('span');
+        catSpan.className = 'tag-category';
+        catSpan.style.marginLeft = '0.4em';
+        catSpan.textContent = ov.cat;
+        tagCell.appendChild(catSpan);
+      }
+    }
+
+    tagEl.setAttribute('data-interactive', '1');
+    tagEl.title = 'Cliquer pour classer';
+    tagEl.onclick = () => openClassifyModal(name, tagEl);
+
+    if (!tagCell.querySelector('.pd-btn-classify')) {
+      const btn = document.createElement('button');
+      btn.className = 'pd-btn-classify';
+      btn.style.marginLeft = '0.5em';
+      btn.textContent = 'Éditer';
+      btn.onclick = () => openClassifyModal(name, tagEl);
+      tagCell.appendChild(btn);
+    }
+  });
+  updateBanner();
+}
+
+function openClassifyModal(name, tagEl) {
+  _classifyTarget = { name, tagEl };
+  _classifyDept   = null;
+  document.getElementById('modal-supplier-name').textContent = name;
+  document.getElementById('modal-category').value = '';
+  document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('selected'));
+  const overrides = loadOverrides();
+  if (overrides[name]) {
+    const d = overrides[name].dept;
+    const btn = document.querySelector('.dept-btn[data-dept="' + d + '"]');
+    if (btn) { btn.classList.add('selected'); _classifyDept = d; }
+    if (overrides[name].cat) document.getElementById('modal-category').value = overrides[name].cat;
+  }
+  document.getElementById('classify-modal').style.display = 'flex';
+}
+
+function closeClassifyModal() {
+  document.getElementById('classify-modal').style.display = 'none';
+  _classifyTarget = null;
+  _classifyDept   = null;
+}
+
+function selectDept(btn, dept) {
+  document.querySelectorAll('.dept-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _classifyDept = dept;
+}
+
+function saveClassification() {
+  if (!_classifyTarget || !_classifyDept) return;
+  const cat = document.getElementById('modal-category').value;
+  const overrides = loadOverrides();
+  overrides[_classifyTarget.name] = { dept: _classifyDept, cat };
+  saveOverrides(overrides);
+
+  const tagEl = _classifyTarget.tagEl;
+  tagEl.className = 'tag ' + DEPT_CLASSES[_classifyDept];
+  tagEl.textContent = DEPT_LABELS[_classifyDept];
+
+  const tagCell = tagEl.parentElement;
+  let catSpan = tagCell.querySelector('.tag-category');
+  if (cat) {
+    if (!catSpan) {
+      catSpan = document.createElement('span');
+      catSpan.className = 'tag-category';
+      catSpan.style.marginLeft = '0.4em';
+      tagCell.appendChild(catSpan);
+    }
+    catSpan.textContent = cat;
+  } else if (catSpan) {
+    catSpan.remove();
+  }
+
+  closeClassifyModal();
+  updateBanner();
+}
+
+function updateBanner() {
+  const overrides = loadOverrides();
+  let ncCount = 0;
+  document.querySelectorAll('#p-fournisseurs tbody tr').forEach(row => {
+    const nameCell = row.querySelector('td:first-child');
+    const tagEl   = row.querySelector('td:nth-child(2) .tag');
+    if (!nameCell || !tagEl) return;
+    const name = nameCell.textContent.trim();
+    const ov   = overrides[name];
+    if (ov) { if (ov.dept === 'nc') ncCount++; }
+    else { if (tagEl.classList.contains('tag-nc')) ncCount++; }
+  });
+  const banner = document.getElementById('classify-banner');
+  if (banner) {
+    if (ncCount > 0) {
+      banner.style.display = 'flex';
+      const cEl = document.getElementById('classify-banner-count');
+      if (cEl) cEl.textContent = ncCount;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeClassifyModal(); });
+
+/* ═══════════════════════════════════════════════════════
+   MARGES HORECA
+   Storage key: pd-ca-v1
+═══════════════════════════════════════════════════════ */
+
+const CA_KEY = 'pd-ca-v1';
+
+function loadCA() {
+  try { return JSON.parse(localStorage.getItem(CA_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveCAData(data) {
+  try { localStorage.setItem(CA_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function buildCAGrid() {
+  const grid = document.getElementById('ca-grid');
+  if (!grid) return;
+  const ca = loadCA();
+  grid.innerHTML = '';
+  yms.forEach(ym => {
+    const existing = ca[ym] || {};
+    const div = document.createElement('div');
+    div.className = 'ca-field';
+    div.innerHTML = '<label>' + ym + '</label>' +
+      '<div style="display:flex;flex-direction:column;gap:var(--space-2xs)">' +
+        '<div class="ca-input-wrap">' +
+          '<span style="color:var(--accent);font-size:var(--text-2xs);min-width:3.5em">Cuisine</span>' +
+          '<input type="number" id="ca-cuisine-' + ym + '" placeholder="0" min="0" step="100" value="' + (existing.cuisine || '') + '" oninput="updateMarges()">' +
+        '</div>' +
+        '<div class="ca-input-wrap">' +
+          '<span style="color:var(--pd-ink-400,#888);font-size:var(--text-2xs);min-width:3.5em">Salle</span>' +
+          '<input type="number" id="ca-salle-' + ym + '" placeholder="0" min="0" step="100" value="' + (existing.salle || '') + '" oninput="updateMarges()">' +
+        '</div>' +
+      '</div>';
+    grid.appendChild(div);
+  });
+  updateMarges();
+}
+
+function saveCA() {
+  const ca = {};
+  yms.forEach(ym => {
+    const c = parseFloat(document.getElementById('ca-cuisine-' + ym)?.value) || 0;
+    const s = parseFloat(document.getElementById('ca-salle-' + ym)?.value) || 0;
+    if (c || s) ca[ym] = { cuisine: c, salle: s };
+  });
+  saveCAData(ca);
+  updateMarges();
+  const btn = document.querySelector('#p-marges .btn-save');
+  if (btn) { const orig = btn.textContent; btn.textContent = '✓ Enregistré'; setTimeout(() => btn.textContent = orig, 1400); }
+}
+
+function resetCA() {
+  if (!confirm('Réinitialiser tout le CA saisi ?')) return;
+  try { localStorage.removeItem(CA_KEY); } catch(e) {}
+  buildCAGrid();
+}
+
+function pct(num, denom) { return denom > 0 ? (num / denom * 100) : null; }
+function fmtPct(v) { return v !== null ? v.toFixed(1) + '%' : '—'; }
+function fmtEur(v) { return v > 0 ? '€' + Math.round(v).toLocaleString('fr-BE') : '—'; }
+
+function statusFC(v)  { if (v===null) return 'neutral'; return v<=34 ? 'ok' : v<=40 ? 'warn' : 'bad'; }
+function statusBC(v)  { if (v===null) return 'neutral'; return v<=28 ? 'ok' : v<=35 ? 'warn' : 'bad'; }
+function statusPC(v)  { if (v===null) return 'neutral'; return v<=65 ? 'ok' : v<=72 ? 'warn' : 'bad'; }
+function statusCo(v)  { if (v===null) return 'neutral'; return v>=3.0 ? 'ok' : v>=2.8 ? 'warn' : 'bad'; }
+function sCls(fn, val) {
+  const s = fn(val); return s==='ok'?'status-ok':s==='warn'?'status-warn':s==='bad'?'status-bad':'kpi-sub';
+}
+function sIcon(fn, val) {
+  const s = fn(val); return s==='ok'?'✓':s==='warn'?'△':s==='bad'?'✗':'—';
+}
+
+function updateMarges() {
+  let totalCACuisine = 0, totalCASalle = 0;
+  yms.forEach(ym => {
+    totalCACuisine += parseFloat(document.getElementById('ca-cuisine-' + ym)?.value) || 0;
+    totalCASalle   += parseFloat(document.getElementById('ca-salle-' + ym)?.value) || 0;
+  });
+  const totalCA = totalCACuisine + totalCASalle;
+
+  const foodCost  = pct(ACH_CUISINE, totalCACuisine);
+  const bevCost   = pct(ACH_SALLE,   totalCASalle);
+  const primeCost = pct(ACH_CUISINE + ACH_SALLE, totalCA);
+  const coeff     = totalCACuisine > 0 ? totalCACuisine / ACH_CUISINE : null;
+
+  const kpiGrid = document.getElementById('marges-kpi-grid');
+  if (kpiGrid) {
+    function barFill(fn, val, maxPct) {
+      const w = val ? Math.min(val/maxPct*100, 100) : 0;
+      const s = fn(val);
+      const col = s==='ok'?'var(--positive)':s==='warn'?'oklch(0.7 0.18 85)':s==='bad'?'var(--negative)':'var(--line)';
+      return '<div class="kpi-bench"><div class="kpi-bench-bar"><div class="kpi-bench-fill" style="width:' + w + '%;background:' + col + '"></div></div></div>';
+    }
+    kpiGrid.innerHTML =
+      '<div class="kpi"><div class="kpi-label">CA Cuisine (HTVA)</div>' +
+        '<div class="kpi-value" style="color:var(--accent)">' + fmtEur(totalCACuisine) + '</div>' +
+        '<div class="kpi-sub">' + (totalCACuisine > 0 ? Math.round(totalCACuisine/(totalCA||1)*100)+'% du CA total' : 'À saisir') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">CA Boissons (HTVA)</div>' +
+        '<div class="kpi-value">' + fmtEur(totalCASalle) + '</div>' +
+        '<div class="kpi-sub">' + (totalCASalle > 0 ? Math.round(totalCASalle/(totalCA||1)*100)+'% du CA total' : 'À saisir') + '</div></div>' +
+      '<div class="kpi"><div class="kpi-label">Food Cost %</div>' +
+        '<div class="kpi-value ' + sCls(statusFC, foodCost) + '">' + fmtPct(foodCost) + '</div>' +
+        '<div class="kpi-sub">Cible : 28–34%</div>' + barFill(statusFC, foodCost, 50) + '</div>' +
+      '<div class="kpi"><div class="kpi-label">Beverage Cost %</div>' +
+        '<div class="kpi-value ' + sCls(statusBC, bevCost) + '">' + fmtPct(bevCost) + '</div>' +
+        '<div class="kpi-sub">Cible : 18–28%</div>' + barFill(statusBC, bevCost, 50) + '</div>' +
+      '<div class="kpi"><div class="kpi-label">Prime Cost (mat.)</div>' +
+        '<div class="kpi-value ' + sCls(statusPC, primeCost) + '">' + fmtPct(primeCost) + '</div>' +
+        '<div class="kpi-sub">Seuil max : 65%</div>' + barFill(statusPC, primeCost, 100) + '</div>' +
+      '<div class="kpi"><div class="kpi-label">Coeff. multiplicateur</div>' +
+        '<div class="kpi-value ' + sCls(statusCo, coeff) + '">' + (coeff !== null ? coeff.toFixed(2) + '×' : '—') + '</div>' +
+        '<div class="kpi-sub">Cible : ×3.0–×3.5</div></div>';
+  }
+
+  const tbody = document.getElementById('bench-tbody');
+  if (tbody) {
+    const rows = [
+      { label:'Food Cost %',               val:foodCost,  fmted:fmtPct(foodCost),  cible:'28–34%',    max:'40%',     fn:statusFC },
+      { label:'Beverage Cost %',            val:bevCost,   fmted:fmtPct(bevCost),   cible:'18–28%',    max:'35%',     fn:statusBC },
+      { label:'Prime Cost matières %',      val:primeCost, fmted:fmtPct(primeCost), cible:'<65%',      max:'72%',     fn:statusPC },
+      { label:'Coefficient multiplicateur', val:coeff,     fmted:coeff!==null?coeff.toFixed(2)+'×':'—', cible:'×3.0–×3.5', max:'min ×2.8', fn:statusCo },
+    ];
+    tbody.innerHTML = rows.map(r =>
+      '<tr><td>' + r.label + '</td>' +
+      '<td class="num"><strong class="' + sCls(r.fn, r.val) + '">' + r.fmted + '</strong></td>' +
+      '<td class="num">' + r.cible + '</td>' +
+      '<td class="num">' + r.max + '</td>' +
+      '<td class="num"><span class="' + sCls(r.fn, r.val) + '">' + sIcon(r.fn, r.val) + '</span></td></tr>'
+    ).join('');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initClassification();
+  buildCAGrid();
+});
 
 </script>
 </body>
