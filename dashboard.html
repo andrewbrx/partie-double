@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="ink">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partie Double — Restaurant Intelligence</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+<script>
+  (function(){
+    try{ var t=localStorage.getItem("pd-theme"); if(t==="ink"||t==="paper") document.documentElement.setAttribute("data-theme",t); }catch(e){}
+  })();
+</script>
+
+<style>
+/* ═══════════ TOKENS ═══════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --pd-ink-50:  oklch(0.966 0.006 82);
+  --pd-ink-100: oklch(0.936 0.008 82);
+  --pd-ink-200: oklch(0.876 0.010 78);
+  --pd-ink-300: oklch(0.782 0.011 74);
+  --pd-ink-400: oklch(0.662 0.012 70);
+  --pd-ink-500: oklch(0.546 0.012 68);
+  --pd-ink-600: oklch(0.446 0.012 65);
+  --pd-ink-700: oklch(0.346 0.011 62);
+  --pd-ink-800: oklch(0.252 0.010 58);
+  --pd-ink-900: oklch(0.182 0.009 54);
+  --pd-ink-950: oklch(0.142 0.009 50);
+  --pd-paper:   oklch(0.945 0.012 85);
+  --pd-red-400: oklch(0.660 0.188 29);
+  --pd-red-500: oklch(0.600 0.208 28);
+  --pd-red-600: oklch(0.530 0.198 28);
+  --pd-red-700: oklch(0.452 0.170 28);
+
+  --font-display: "Fraunces","Hoefler Text",Georgia,serif;
+  --font-sans:    "Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",system-ui,sans-serif;
+  --font-mono:    "JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+
+  --text-2xs:  0.6875rem;
+  --text-xs:   0.8rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.5625rem;
+  --text-2xl:  clamp(1.75rem,1.42rem + 1.55vw,2.4375rem);
+
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs:  0.75rem;
+  --space-s:   1rem;
+  --space-m:   1.5rem;
+  --space-l:   2rem;
+
+  --radius-sm:   5px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-pill: 999px;
+
+  --border-hairline: 0.5px;
+  --border-regular:  1px;
+  --ease-standard:   cubic-bezier(0.20,0.70,0.15,1.00);
+  --dur-fast:    160ms;
+  --dur-base:    240ms;
+
+  /* Thème papier */
+  --surface:         var(--pd-paper);
+  --surface-raised:  oklch(0.975 0.010 85);
+  --surface-sunken:  oklch(0.912 0.012 84);
+  --text:            var(--pd-ink-900);
+  --text-soft:       var(--pd-ink-700);
+  --text-faint:      var(--pd-ink-500);
+  --text-on-accent:  var(--pd-paper);
+  --accent:          var(--pd-red-600);
+  --accent-hover:    var(--pd-red-700);
+  --accent-quiet:    color-mix(in oklab, var(--pd-red-500) 15%, var(--pd-paper));
+  --negative:        var(--pd-red-600);
+  --positive:        var(--pd-ink-600);
+  --line:            color-mix(in oklab, var(--pd-ink-900) 14%, transparent);
+  --line-strong:     color-mix(in oklab, var(--pd-ink-900) 30%, transparent);
+  color-scheme: light;
+}
+
+[data-theme="ink"] {
+  --surface:         var(--pd-ink-950);
+  --surface-raised:  var(--pd-ink-900);
+  --surface-sunken:  oklch(0.116 0.009 48);
+  --text:            var(--pd-paper);
+  --text-soft:       var(--pd-ink-300);
+  --text-faint:      var(--pd-ink-500);
+  --text-on-accent:  var(--pd-paper);
+  --accent:          var(--pd-red-500);
+  --accent-hover:    var(--pd-red-400);
+  --accent-quiet:    color-mix(in oklab, var(--pd-red-500) 22%, var(--pd-ink-950));
+  --negative:        var(--pd-red-400);
+  --positive:        var(--pd-ink-300);
+  --line:            color-mix(in oklab, var(--pd-paper) 12%, transparent);
+  --line-strong:     color-mix(in oklab, var(--pd-paper) 28%, transparent);
+  color-scheme: dark;
+}
+
+/* ═══════════ BASE ═══════════ */
+html { font-optical-sizing: auto; }
+body {
+  font-family: var(--font-sans);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background var(--dur-base) var(--ease-standard),
+              color var(--dur-base) var(--ease-standard);
+}
+::selection { background: var(--accent-quiet); color: var(--text); }
+
+/* ═══════════ SIDEBAR ═══════════ */
+#sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background: var(--surface-raised);
+  border-right: var(--border-hairline) solid var(--line);
+  padding: var(--space-m) 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 0 var(--space-m) var(--space-m);
+  border-bottom: var(--border-hairline) solid var(--line);
+  margin-bottom: var(--space-xs);
+}
+.sidebar-logo .name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--text);
+  display: block;
+}
+.sidebar-logo span {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 500;
+  display: block;
+  margin-top: var(--space-3xs);
+}
+.nav-section {
+  padding: var(--space-xs) var(--space-m) var(--space-2xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-m);
+  cursor: pointer;
+  color: var(--text-soft);
+  transition: all var(--dur-fast) var(--ease-standard);
+  border-left: 2px solid transparent;
+  font-size: var(--text-sm);
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  text-align: left;
+  width: 100%;
+}
+.nav-item:hover { color: var(--text); background: color-mix(in oklab, var(--accent) 6%, transparent); }
+.nav-item.active {
+  color: var(--text);
+  background: color-mix(in oklab, var(--accent) 10%, transparent);
+  border-left-color: var(--accent);
+}
+.nav-item .nav-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+  width: 1.6rem;
+  flex-shrink: 0;
+}
+.nav-item.active .nav-code { color: var(--accent); }
+.sidebar-footer {
+  margin-top: auto;
+  padding: var(--space-m);
+  border-top: var(--border-hairline) solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* ═══════════ MAIN ═══════════ */
+#main { flex: 1; overflow-y: auto; min-width: 0; }
+.page { display: none; padding: var(--space-2xl) var(--space-l); max-width: 1400px; }
+.page.active { display: block; }
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  line-height: 1.22;
+  margin-bottom: var(--space-3xs);
+}
+.page-sub {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-bottom: var(--space-l);
+}
+.pd-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ═══════════ KPI ═══════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-s);
+  margin-bottom: var(--space-l);
+}
+.kpi {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-m);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  margin-bottom: var(--space-xs);
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi-sub {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  margin-top: var(--space-3xs);
+}
+.kpi-delta { font-size: var(--text-xs); font-weight: 500; margin-top: var(--space-3xs); }
+.kpi-delta.up   { color: var(--negative); }
+.kpi-delta.down { color: var(--positive); }
+.kpi-delta.neutral { color: var(--text-faint); }
+.kpi-bar { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--accent); }
+
+/* ═══════════ CHARTS ═══════════ */
+.chart-grid { display: grid; gap: var(--space-s); margin-bottom: var(--space-s); }
+.chart-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.chart-grid.cols-3 { grid-template-columns: 2fr 1fr 1fr; }
+.chart-card {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-m);
+}
+.chart-card.span-2 { grid-column: span 2; }
+.chart-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  margin-bottom: var(--space-s);
+}
+
+/* ═══════════ TABLE ═══════════ */
+.table-wrap {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-l);
+}
+table { width: 100%; border-collapse: collapse; font-feature-settings: "tnum","lnum"; font-variant-numeric: tabular-nums lining-nums; }
+thead th {
+  background: var(--surface-sunken);
+  padding: var(--space-xs) var(--space-s);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  font-weight: 500;
+  border-bottom: var(--border-hairline) solid var(--line-strong);
+}
+tbody td {
+  padding: var(--space-2xs) var(--space-s);
+  border-bottom: var(--border-hairline) solid var(--line);
+  font-size: var(--text-sm);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: color-mix(in oklab, var(--accent) 4%, transparent); }
+tfoot td {
+  padding: var(--space-xs) var(--space-s);
+  border-top: var(--border-regular) solid var(--text);
+  font-weight: 500;
+  background: var(--surface-sunken);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+td.num { text-align: right; font-family: var(--font-mono); }
+td.right { text-align: right; }
+
+/* ═══════════ TAGS ═══════════ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4ch;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 0.2em 0.65em;
+  border-radius: var(--radius-pill);
+  border: var(--border-hairline) solid currentColor;
+  opacity: 0.85;
+}
+.tag-cuisine { color: var(--accent); }
+.tag-salle   { color: var(--pd-ink-400,#888); }
+.tag-general { color: var(--text-soft); }
+.tag-nc      { color: var(--text-faint); }
+
+/* ═══════════ ALERTS / INSIGHTS ═══════════ */
+.insight-list { display: flex; flex-direction: column; gap: var(--space-xs); margin-bottom: var(--space-l); }
+.insight {
+  background: var(--surface-raised);
+  border: var(--border-hairline) solid var(--line);
+  border-left: 2px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-s) var(--space-m);
+}
+.insight.high   { border-left-color: var(--negative); }
+.insight.medium { border-left-color: var(--text-soft); }
+.insight.low    { border-left-color: var(--text-faint); }
+.insight-header { display: flex; align-items: center; gap: var(--space-2xs); margin-bottom: var(--space-3xs); }
+.insight-cat {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+.insight.high   .insight-cat { color: var(--negative); }
+.insight-title  { font-size: var(--text-sm); font-weight: 500; color: var(--text); }
+.insight-detail { font-size: var(--text-xs); color: var(--text-soft); margin-top: var(--space-3xs); }
+.insight-action { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--accent); margin-top: var(--space-2xs); font-weight: 500; }
+.insight-action::before { content: "→ "; }
+
+/* ═══════════ MISC ═══════════ */
+.anom {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--negative);
+  margin-right: 4px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.bar-cuisine { background: var(--accent); }
+.bar-salle   { background: var(--pd-ink-600,#446); }
+.bar-general { background: var(--pd-ink-700,#334); }
+.bar-nc      { background: var(--pd-ink-800,#222); }
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+  margin: var(--space-l) 0 var(--space-xs);
+  font-weight: 500;
+}
+.divider { border: none; border-top: var(--border-hairline) solid var(--line); margin: var(--space-l) 0; }
+
+.pill {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.pill-red    { background: color-mix(in oklab, var(--negative) 18%, transparent); color: var(--negative); }
+.pill-green  { background: color-mix(in oklab, var(--positive) 18%, transparent); color: var(--positive); }
+.pill-yellow { background: color-mix(in oklab, var(--text-soft) 16%, transparent); color: var(--text-soft); }
+.pill-gray   { background: color-mix(in oklab, var(--text-faint) 14%, transparent); color: var(--text-faint); }
+
+.no-data { padding: var(--space-2xl); text-align: center; color: var(--text-faint); font-size: var(--text-sm); }
+
+/* ═══════════ THEME TOGGLE BUTTON ═══════════ */
+.pd-btn-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 0.5rem 0.875rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  border: var(--border-hairline) solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+              color var(--dur-fast) var(--ease-standard);
+}
+.pd-btn-theme:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span class="name">Partie Double</span>
+    <span>Restaurant Intelligence</span>
+  </div>
+
+  <span class="nav-section">Navigation</span>
+
+  <div class="nav-item active" data-page="p-overview" onclick="nav('p-overview')">
+    <span class="nav-code">00</span>Vue d'ensemble
+  </div>
+  <div class="nav-item" data-page="p-cuisine" onclick="nav('p-cuisine')">
+    <span class="nav-code">01</span>Cuisine
+  </div>
+  <div class="nav-item" data-page="p-salle" onclick="nav('p-salle')">
+    <span class="nav-code">02</span>Salle &amp; Bar
+  </div>
+  <div class="nav-item" data-page="p-services" onclick="nav('p-services')">
+    <span class="nav-code">03</span>Services &amp; Fixe
+  </div>
+  <div class="nav-item" data-page="p-fournisseurs" onclick="nav('p-fournisseurs')">
+    <span class="nav-code">04</span>Fournisseurs
+  </div>
+  <div class="nav-item" data-page="p-alertes" onclick="nav('p-alertes')">
+    <span class="nav-code">05</span>Alertes &amp; Actions
+    <span class="pill pill-red" style="margin-left:auto">5</span>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="pd-btn-theme" id="theme-btn" onclick="toggleTheme()">Thème Papier</button>
+    <span class="pd-eyebrow" style="text-align:center;">Généré 12/06/2026</span>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ══════════════════════════════════════════════════ VUE D'ENSEMBLE -->
+<div id="p-overview" class="page active">
+  <div class="page-title">Vue d'ensemble</div>
+  <div class="page-sub">14 mois de données · 51 fournisseurs · €178,607 achats HTVA</div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total achats HTVA</div>
+      <div class="kpi-value">€178,607</div>
+      <div class="kpi-delta down">▼ 52.5% vs mois préc.</div>
+      <div class="kpi-bar" style="width:100%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Cuisine</div>
+      <div class="kpi-value" style="color:var(--cuisine)">€50,417</div>
+      <div class="kpi-sub">28.2% du total</div>
+      <div class="kpi-bar bar-cuisine" style="width:28.2%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Salle & Bar</div>
+      <div class="kpi-value" style="color:var(--salle)">€80,097</div>
+      <div class="kpi-sub">44.8% du total</div>
+      <div class="kpi-bar bar-salle" style="width:44.8%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Non classé</div>
+      <div class="kpi-value" style="color:var(--muted)">€44,819</div>
+      <div class="kpi-sub" style="color:var(--red)">
+        25.1% à classer
+      </div>
+      <div class="kpi-bar bar-nc" style="width:25.1%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Charges fixes</div>
+      <div class="kpi-value">€3,273</div>
+      <div class="kpi-sub">1.8% du total</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Fournisseurs</div>
+      <div class="kpi-value">51</div>
+      <div class="kpi-sub">9 anomalie(s) · 21 non classés</div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-3">
+    <div class="chart-card span-2">
+      <div class="chart-title">Évolution mensuelle par département</div>
+      <div id="ch-monthly" style="height:260px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Concentration fournisseurs</div>
+      <div id="ch-conc" style="height:260px"></div>
+    </div>
+  </div>
+
+  <div class="chart-grid cols-2">
+    <div class="chart-card">
+      <div class="chart-title">Top 6 fournisseurs — évolution mensuelle</div>
+      <div id="ch-series" style="height:240px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Fixe vs Variable</div>
+      <div id="ch-fixvar" style="height:240px"></div>
+    </div>
+  </div>
+
+  <div class="section-label">Alertes prioritaires</div><div class="insight-list">
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Concentration</span>
+              </div>
+              <div class="insight-title">BRASSERIE SURREALISTE représente 22.9% de ton budget achats total</div>
+              <div class="insight-detail">€40,946 sur 27 factures. Une rupture ou hausse de prix ici fait mal immédiatement. Demande un devis concurrent.</div>
+              <div class="insight-action">Obtenir 2 devis alternatifs</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">BRASSERIE SURREALISTE : facture moyenne en hausse de 67.0%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">AQUALITY : facture moyenne en hausse de 65.9%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ CUISINE -->
+<div id="p-cuisine" class="page">
+  <div class="page-title">Cuisine</div>
+  <div class="page-sub">Achats matières premières — département cuisine</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total cuisine HTVA</div>
+      <div class="kpi-value" style="color:var(--cuisine)">€50,417</div>
+      <div class="kpi-bar bar-cuisine" style="width:100%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Part du budget</div>
+      <div class="kpi-value">28.2%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Food Cost</div>
+      <div class="kpi-value" style="color:var(--muted)">—</div>
+      <div class="kpi-sub">Saisis le CA via ventes.py</div>
+    </div>
+  </div>
+  <div class="chart-grid cols-2" style="margin-bottom:20px">
+    <div class="chart-card">
+      <div class="chart-title">Achats cuisine par mois</div>
+      <div id="ch-cuisine-monthly" style="height:220px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Répartition par fournisseur</div>
+      <div id="ch-cuisine-donut" style="height:220px"></div>
+    </div>
+  </div>
+  <div class="section-label">Fournisseurs cuisine</div>
+  <div class="table-wrap"><table><thead><tr>
+          <th>Fournisseur</th><th>Total</th><th>Part</th>
+          <th>Moy./facture</th><th>Nb fact.</th><th>Drift prix</th><th>Dernier achat</th>
+        </tr></thead><tbody><tr>
+              <td><b>Urby De Groof en Luc Opdebeeck</b></td>
+              <td class="num">€18,339</td>
+              <td class="num">36.4%</td>
+              <td class="num">€573</td>
+              <td class="num">32</td>
+              <td class="right"><span class="pill pill-gray">▼5%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><span class="anom"></span><b>RESTOFRAIS</b></td>
+              <td class="num">€9,437</td>
+              <td class="num">18.7%</td>
+              <td class="num">€1,049</td>
+              <td class="num">9</td>
+              <td class="right"><span class="pill pill-green">▼88%</span></td>
+              <td class="right">2026-05</td>
+            </tr><tr>
+              <td><span class="anom"></span><b>LOBET ROUSSEL SA</b></td>
+              <td class="num">€5,785</td>
+              <td class="num">11.5%</td>
+              <td class="num">€275</td>
+              <td class="num">21</td>
+              <td class="right"><span class="pill pill-gray">▲12%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><span class="anom"></span><b>LOBSTERFISH</b></td>
+              <td class="num">€4,382</td>
+              <td class="num">8.7%</td>
+              <td class="num">€118</td>
+              <td class="num">37</td>
+              <td class="right"><span class="pill pill-green">▼83%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><span class="anom"></span><b>MDH FOODS SERVICE</b></td>
+              <td class="num">€3,383</td>
+              <td class="num">6.7%</td>
+              <td class="num">€188</td>
+              <td class="num">18</td>
+              <td class="right"><span class="pill pill-green">▼57%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><span class="anom"></span><b>'T HOF VAN OSSEL - MEYSMANS - DE KEERSMAEKER</b></td>
+              <td class="num">€2,777</td>
+              <td class="num">5.5%</td>
+              <td class="num">€694</td>
+              <td class="num">4</td>
+              <td class="right"><span class="pill pill-red">▲78%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><b>MIRO' GROUP</b></td>
+              <td class="num">€1,980</td>
+              <td class="num">3.9%</td>
+              <td class="num">€247</td>
+              <td class="num">8</td>
+              <td class="right"><span class="pill pill-green">▼28%</span></td>
+              <td class="right">2025-12</td>
+            </tr><tr>
+              <td><b>Renard Foods</b></td>
+              <td class="num">€1,394</td>
+              <td class="num">2.8%</td>
+              <td class="num">€348</td>
+              <td class="num">4</td>
+              <td class="right"><span class="pill pill-gray">▲16%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><b>Miró Eccelenze Italiane</b></td>
+              <td class="num">€928</td>
+              <td class="num">1.8%</td>
+              <td class="num">€77</td>
+              <td class="num">12</td>
+              <td class="right"><span class="pill pill-gray">▼2%</span></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><b>IL MONELLO</b></td>
+              <td class="num">€478</td>
+              <td class="num">0.9%</td>
+              <td class="num">€120</td>
+              <td class="num">4</td>
+              <td class="right"><span class="pill pill-green">▼13%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>KROKET COMPANY</b></td>
+              <td class="num">€446</td>
+              <td class="num">0.9%</td>
+              <td class="num">€223</td>
+              <td class="num">2</td>
+              <td class="right"></td>
+              <td class="right">2026-02</td>
+            </tr><tr>
+              <td><b>FOODEX</b></td>
+              <td class="num">€399</td>
+              <td class="num">0.8%</td>
+              <td class="num">€200</td>
+              <td class="num">2</td>
+              <td class="right"></td>
+              <td class="right">2025-10</td>
+            </tr><tr>
+              <td><b>Etre Gourmet</b></td>
+              <td class="num">€324</td>
+              <td class="num">0.6%</td>
+              <td class="num">€324</td>
+              <td class="num">1</td>
+              <td class="right"></td>
+              <td class="right">2026-03</td>
+            </tr><tr>
+              <td><b>Maison Dandoy</b></td>
+              <td class="num">€210</td>
+              <td class="num">0.4%</td>
+              <td class="num">€105</td>
+              <td class="num">2</td>
+              <td class="right"></td>
+              <td class="right">2026-02</td>
+            </tr><tr>
+              <td><b>HASYMAR</b></td>
+              <td class="num">€154</td>
+              <td class="num">0.3%</td>
+              <td class="num">€154</td>
+              <td class="num">1</td>
+              <td class="right"></td>
+              <td class="right">2026-03</td>
+            </tr></tbody><tfoot><tr style="background:#111113">
+          <td><b>Total Cuisine</b></td>
+          <td class="num"><b>€50,417</b></td>
+          <td class="num"><b>28.2%</b></td>
+          <td colspan="5"></td></tr></tfoot></table></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ SALLE -->
+<div id="p-salle" class="page">
+  <div class="page-title">Salle & Bar</div>
+  <div class="page-sub">Boissons, vins, bières et consommables salle</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total salle HTVA</div>
+      <div class="kpi-value" style="color:var(--salle)">€80,097</div>
+      <div class="kpi-bar bar-salle" style="width:100%"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Part du budget</div>
+      <div class="kpi-value">44.8%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Beverage Cost</div>
+      <div class="kpi-value" style="color:var(--muted)">—</div>
+      <div class="kpi-sub">Saisis le CA via ventes.py</div>
+    </div>
+  </div>
+  <div class="chart-grid cols-2" style="margin-bottom:20px">
+    <div class="chart-card">
+      <div class="chart-title">Achats salle par mois</div>
+      <div id="ch-salle-monthly" style="height:220px"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Répartition par fournisseur</div>
+      <div id="ch-salle-donut" style="height:220px"></div>
+    </div>
+  </div>
+  <div class="section-label">Fournisseurs salle</div>
+  <div class="table-wrap"><table><thead><tr>
+          <th>Fournisseur</th><th>Total</th><th>Part</th>
+          <th>Moy./facture</th><th>Nb fact.</th><th>Drift prix</th><th>Dernier achat</th>
+        </tr></thead><tbody><tr>
+              <td><span class="anom"></span><b>BRASSERIE SURREALISTE</b></td>
+              <td class="num">€40,946</td>
+              <td class="num">51.1%</td>
+              <td class="num">€1,517</td>
+              <td class="num">27</td>
+              <td class="right"><span class="pill pill-red">▲67%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>TASTEVIN-SPIRIGROS</b></td>
+              <td class="num">€18,464</td>
+              <td class="num">23.1%</td>
+              <td class="num">€803</td>
+              <td class="num">23</td>
+              <td class="right"><span class="pill pill-gray">▼8%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>DEKONINCK</b></td>
+              <td class="num">€8,419</td>
+              <td class="num">10.5%</td>
+              <td class="num">€421</td>
+              <td class="num">20</td>
+              <td class="right"><span class="pill pill-gray">▼4%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>AVINUM</b></td>
+              <td class="num">€5,519</td>
+              <td class="num">6.9%</td>
+              <td class="num">€1,840</td>
+              <td class="num">3</td>
+              <td class="right"></td>
+              <td class="right">2026-05</td>
+            </tr><tr>
+              <td><b>TERROIRIST</b></td>
+              <td class="num">€2,768</td>
+              <td class="num">3.5%</td>
+              <td class="num">€154</td>
+              <td class="num">18</td>
+              <td class="right"><span class="pill pill-green">▼24%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>DRANKEN GEERS</b></td>
+              <td class="num">€1,513</td>
+              <td class="num">1.9%</td>
+              <td class="num">€252</td>
+              <td class="num">6</td>
+              <td class="right"></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><b>TITULUS PICTUS</b></td>
+              <td class="num">€1,052</td>
+              <td class="num">1.3%</td>
+              <td class="num">€210</td>
+              <td class="num">5</td>
+              <td class="right"></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>SITALVINI</b></td>
+              <td class="num">€551</td>
+              <td class="num">0.7%</td>
+              <td class="num">€184</td>
+              <td class="num">3</td>
+              <td class="right"></td>
+              <td class="right">2026-04</td>
+            </tr><tr>
+              <td><b>DANDRIMONT</b></td>
+              <td class="num">€480</td>
+              <td class="num">0.6%</td>
+              <td class="num">€240</td>
+              <td class="num">2</td>
+              <td class="right"></td>
+              <td class="right">2026-05</td>
+            </tr><tr>
+              <td><b>CAVE COOP</b></td>
+              <td class="num">€290</td>
+              <td class="num">0.4%</td>
+              <td class="num">€290</td>
+              <td class="num">1</td>
+              <td class="right"></td>
+              <td class="right">2026-05</td>
+            </tr><tr>
+              <td><b>FLOW</b></td>
+              <td class="num">€96</td>
+              <td class="num">0.1%</td>
+              <td class="num">€96</td>
+              <td class="num">1</td>
+              <td class="right"></td>
+              <td class="right">2026-03</td>
+            </tr></tbody><tfoot><tr style="background:#111113">
+          <td><b>Total Salle</b></td>
+          <td class="num"><b>€80,097</b></td>
+          <td class="num"><b>44.8%</b></td>
+          <td colspan="5"></td></tr></tfoot></table></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ SERVICES -->
+<div id="p-services" class="page">
+  <div class="page-title">Services & Charges fixes</div>
+  <div class="page-sub">Énergie, entretien, hygiène et autres charges non-matières</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Charges fixes totales</div>
+      <div class="kpi-value" style="color:var(--general)">€3,273</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Charges variables</div>
+      <div class="kpi-value">€132,133</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Part fixe / total</div>
+      <div class="kpi-value">1.8%</div>
+    </div>
+  </div>
+  <div class="section-label">Fournisseurs — Général</div>
+  <div class="table-wrap"><table><thead><tr>
+          <th>Fournisseur</th><th>Total</th><th>Part</th>
+          <th>Moy./facture</th><th>Nb fact.</th><th>Drift prix</th><th>Dernier achat</th>
+        </tr></thead><tbody><tr>
+              <td><b>MORIAU GAS</b></td>
+              <td class="num">€1,383</td>
+              <td class="num">42.2%</td>
+              <td class="num">€230</td>
+              <td class="num">6</td>
+              <td class="right"><span class="pill pill-green">▼38%</span></td>
+              <td class="right">2026-06</td>
+            </tr><tr>
+              <td><b>JOKA</b></td>
+              <td class="num">€1,062</td>
+              <td class="num">32.4%</td>
+              <td class="num">€97</td>
+              <td class="num">11</td>
+              <td class="right"><span class="pill pill-green">▼22%</span></td>
+              <td class="right">2026-05</td>
+            </tr><tr>
+              <td><b>SABLON SERVICES</b></td>
+              <td class="num">€436</td>
+              <td class="num">13.3%</td>
+              <td class="num">€436</td>
+              <td class="num">1</td>
+              <td class="right"></td>
+              <td class="right">2026-02</td>
+            </tr><tr>
+              <td><b>QUATRA</b></td>
+              <td class="num">€392</td>
+              <td class="num">12.0%</td>
+              <td class="num">€131</td>
+              <td class="num">3</td>
+              <td class="right"></td>
+              <td class="right">2026-01</td>
+            </tr></tbody><tfoot><tr style="background:#111113">
+          <td><b>Total Général</b></td>
+          <td class="num"><b>€3,273</b></td>
+          <td class="num"><b>1.8%</b></td>
+          <td colspan="5"></td></tr></tfoot></table></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ FOURNISSEURS -->
+<div id="p-fournisseurs" class="page">
+  <div class="page-title">Fournisseurs</div>
+  <div class="page-sub">
+    51 fournisseurs actifs ·
+    <span style="color:var(--red)">9 anomalie(s) détectée(s)</span> ·
+    21 non classés
+  </div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
+    <span class="anom"></span> = anomalie statistique (z-score &gt; 2.5 ou dérive prix &gt; 40%)
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Fournisseur</th><th>Dept.</th><th>Total HTVA</th>
+        <th>Part</th><th>Moy./fact.</th><th>Nb</th>
+        <th>Drift prix</th><th>Avoirs</th><th>Dernier achat</th>
+      </tr></thead>
+      <tbody><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>BRASSERIE SURREALISTE</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€40,946</td>
+          <td class="num">22.9%</td>
+          <td class="num">€1,517</td>
+          <td class="num">27</td>
+          <td class="right"><span class="pill pill-red">▲67%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>TASTEVIN-SPIRIGROS</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€18,464</td>
+          <td class="num">10.3%</td>
+          <td class="num">€803</td>
+          <td class="num">23</td>
+          <td class="right"><span class="pill pill-gray">▼8%</span></td>
+          <td class="right"><span style="color:var(--yellow)">€-454</span></td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>Urby De Groof en Luc Opdebeeck</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€18,339</td>
+          <td class="num">10.3%</td>
+          <td class="num">€573</td>
+          <td class="num">32</td>
+          <td class="right"><span class="pill pill-gray">▼5%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>NV Van Aerde</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€14,713</td>
+          <td class="num">8.2%</td>
+          <td class="num">€3,678</td>
+          <td class="num">4</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>VANDER ZIJPEN</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€12,363</td>
+          <td class="num">6.9%</td>
+          <td class="num">€651</td>
+          <td class="num">19</td>
+          <td class="right"><span class="pill pill-green">▼21%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>RESTOFRAIS</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€9,437</td>
+          <td class="num">5.3%</td>
+          <td class="num">€1,049</td>
+          <td class="num">9</td>
+          <td class="right"><span class="pill pill-green">▼88%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><b>DEKONINCK</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€8,419</td>
+          <td class="num">4.7%</td>
+          <td class="num">€421</td>
+          <td class="num">20</td>
+          <td class="right"><span class="pill pill-gray">▼4%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>LOBET ROUSSEL SA</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€5,785</td>
+          <td class="num">3.2%</td>
+          <td class="num">€275</td>
+          <td class="num">21</td>
+          <td class="right"><span class="pill pill-gray">▲12%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>AVINUM</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€5,519</td>
+          <td class="num">3.1%</td>
+          <td class="num">€1,840</td>
+          <td class="num">3</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>LOBSTERFISH</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€4,382</td>
+          <td class="num">2.5%</td>
+          <td class="num">€118</td>
+          <td class="num">37</td>
+          <td class="right"><span class="pill pill-green">▼83%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>OVISIT</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€4,363</td>
+          <td class="num">2.4%</td>
+          <td class="num">€545</td>
+          <td class="num">8</td>
+          <td class="right"><span class="pill pill-gray">▲16%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>MDH FOODS SERVICE</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€3,383</td>
+          <td class="num">1.9%</td>
+          <td class="num">€188</td>
+          <td class="num">18</td>
+          <td class="right"><span class="pill pill-green">▼57%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>AQUALITY</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€3,192</td>
+          <td class="num">1.8%</td>
+          <td class="num">€266</td>
+          <td class="num">12</td>
+          <td class="right"><span class="pill pill-red">▲66%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>'T HOF VAN OSSEL - MEYSMANS - DE KEERSMAEKER</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€2,777</td>
+          <td class="num">1.6%</td>
+          <td class="num">€694</td>
+          <td class="num">4</td>
+          <td class="right"><span class="pill pill-red">▲78%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>TERROIRIST</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€2,768</td>
+          <td class="num">1.5%</td>
+          <td class="num">€154</td>
+          <td class="num">18</td>
+          <td class="right"><span class="pill pill-green">▼24%</span></td>
+          <td class="right"><span style="color:var(--yellow)">€-416</span></td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>BUBBA</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€2,565</td>
+          <td class="num">1.4%</td>
+          <td class="num">€513</td>
+          <td class="num">5</td>
+          <td class="right"><span class="pill pill-red">▲45%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>MIRO' GROUP</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€1,980</td>
+          <td class="num">1.1%</td>
+          <td class="num">€247</td>
+          <td class="num">8</td>
+          <td class="right"><span class="pill pill-green">▼28%</span></td>
+          <td class="right">—</td>
+          <td class="right">2025-12</td>
+        </tr><tr>
+          <td><b>RANSON</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€1,784</td>
+          <td class="num">1.0%</td>
+          <td class="num">€595</td>
+          <td class="num">3</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-03</td>
+        </tr><tr>
+          <td><b>DRANKEN GEERS</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€1,513</td>
+          <td class="num">0.8%</td>
+          <td class="num">€252</td>
+          <td class="num">6</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>MOK / CITY ROAST</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€1,512</td>
+          <td class="num">0.8%</td>
+          <td class="num">€302</td>
+          <td class="num">5</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>Renard Foods</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€1,394</td>
+          <td class="num">0.8%</td>
+          <td class="num">€348</td>
+          <td class="num">4</td>
+          <td class="right"><span class="pill pill-gray">▲16%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>MORIAU GAS</b></td>
+          <td><span class="tag tag-general">Général</span></td>
+          <td class="num">€1,383</td>
+          <td class="num">0.8%</td>
+          <td class="num">€230</td>
+          <td class="num">6</td>
+          <td class="right"><span class="pill pill-green">▼38%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>JOKA</b></td>
+          <td><span class="tag tag-general">Général</span></td>
+          <td class="num">€1,062</td>
+          <td class="num">0.6%</td>
+          <td class="num">€97</td>
+          <td class="num">11</td>
+          <td class="right"><span class="pill pill-green">▼22%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><b>TITULUS PICTUS</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€1,052</td>
+          <td class="num">0.6%</td>
+          <td class="num">€210</td>
+          <td class="num">5</td>
+          <td class="right"></td>
+          <td class="right"><span style="color:var(--yellow)">€-553</span></td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>Miró Eccelenze Italiane</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€928</td>
+          <td class="num">0.5%</td>
+          <td class="num">€77</td>
+          <td class="num">12</td>
+          <td class="right"><span class="pill pill-gray">▼2%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>BASALT</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€895</td>
+          <td class="num">0.5%</td>
+          <td class="num">€895</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>Swift en Co</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€858</td>
+          <td class="num">0.5%</td>
+          <td class="num">€429</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-03</td>
+        </tr><tr>
+          <td><b>NOVIA DUE</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€636</td>
+          <td class="num">0.4%</td>
+          <td class="num">€318</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><b>SITALVINI</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€551</td>
+          <td class="num">0.3%</td>
+          <td class="num">€184</td>
+          <td class="num">3</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><span class="anom" title="Anomalie détectée"></span><b>JR OROSCO</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€524</td>
+          <td class="num">0.3%</td>
+          <td class="num">€66</td>
+          <td class="num">8</td>
+          <td class="right"><span class="pill pill-green">▼41%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>DANDRIMONT</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€480</td>
+          <td class="num">0.3%</td>
+          <td class="num">€240</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><b>IL MONELLO</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€478</td>
+          <td class="num">0.3%</td>
+          <td class="num">€120</td>
+          <td class="num">4</td>
+          <td class="right"><span class="pill pill-green">▼13%</span></td>
+          <td class="right">—</td>
+          <td class="right">2026-06</td>
+        </tr><tr>
+          <td><b>KROKET COMPANY</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€446</td>
+          <td class="num">0.2%</td>
+          <td class="num">€223</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>SABLON SERVICES</b></td>
+          <td><span class="tag tag-general">Général</span></td>
+          <td class="num">€436</td>
+          <td class="num">0.2%</td>
+          <td class="num">€436</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>CHAMP</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€420</td>
+          <td class="num">0.2%</td>
+          <td class="num">€420</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-01</td>
+        </tr><tr>
+          <td><b>FOODEX</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€399</td>
+          <td class="num">0.2%</td>
+          <td class="num">€200</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2025-10</td>
+        </tr><tr>
+          <td><b>QUATRA</b></td>
+          <td><span class="tag tag-general">Général</span></td>
+          <td class="num">€392</td>
+          <td class="num">0.2%</td>
+          <td class="num">€131</td>
+          <td class="num">3</td>
+          <td class="right"></td>
+          <td class="right"><span style="color:var(--yellow)">€-392</span></td>
+          <td class="right">2026-01</td>
+        </tr><tr>
+          <td><b>SPECTRA DISTRIBUTION</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€329</td>
+          <td class="num">0.2%</td>
+          <td class="num">€329</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-01</td>
+        </tr><tr>
+          <td><b>Etre Gourmet</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€324</td>
+          <td class="num">0.2%</td>
+          <td class="num">€324</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-03</td>
+        </tr><tr>
+          <td><b>CAVE COOP</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€290</td>
+          <td class="num">0.2%</td>
+          <td class="num">€290</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-05</td>
+        </tr><tr>
+          <td><b>Maison Dandoy</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€210</td>
+          <td class="num">0.1%</td>
+          <td class="num">€105</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>MALOU FOOD MARKETING</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€169</td>
+          <td class="num">0.1%</td>
+          <td class="num">€169</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>AMELOOT</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€161</td>
+          <td class="num">0.1%</td>
+          <td class="num">€161</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2025-10</td>
+        </tr><tr>
+          <td><b>HASYMAR</b></td>
+          <td><span class="tag tag-cuisine">Cuisine</span></td>
+          <td class="num">€154</td>
+          <td class="num">0.1%</td>
+          <td class="num">€154</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-03</td>
+        </tr><tr>
+          <td><b>FLOW</b></td>
+          <td><span class="tag tag-salle">Salle</span></td>
+          <td class="num">€96</td>
+          <td class="num">0.1%</td>
+          <td class="num">€96</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-03</td>
+        </tr><tr>
+          <td><b>MADN77</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€90</td>
+          <td class="num">0.1%</td>
+          <td class="num">€90</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>CREMA</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€88</td>
+          <td class="num">0.0%</td>
+          <td class="num">€88</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-01</td>
+        </tr><tr>
+          <td><b>Garden Center Aarschot</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€74</td>
+          <td class="num">0.0%</td>
+          <td class="num">€74</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>FKB INVEST</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€60</td>
+          <td class="num">0.0%</td>
+          <td class="num">€30</td>
+          <td class="num">2</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-04</td>
+        </tr><tr>
+          <td><b>FOURNISSEURS DIVERS</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€18</td>
+          <td class="num">0.0%</td>
+          <td class="num">€18</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-02</td>
+        </tr><tr>
+          <td><b>GO Garden Center Louvain-La-Neuve</b></td>
+          <td><span class="tag tag-nc">Non classé</span></td>
+          <td class="num">€5</td>
+          <td class="num">0.0%</td>
+          <td class="num">€5</td>
+          <td class="num">1</td>
+          <td class="right"></td>
+          <td class="right">—</td>
+          <td class="right">2026-01</td>
+        </tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ ALERTES -->
+<div id="p-alertes" class="page">
+  <div class="page-title">Alertes & Actions prioritaires</div>
+  <div class="page-sub">Générées automatiquement à partir des données — triées par priorité</div>
+  <div class="insight-list">
+    
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Concentration</span>
+              </div>
+              <div class="insight-title">BRASSERIE SURREALISTE représente 22.9% de ton budget achats total</div>
+              <div class="insight-detail">€40,946 sur 27 factures. Une rupture ou hausse de prix ici fait mal immédiatement. Demande un devis concurrent.</div>
+              <div class="insight-action">Obtenir 2 devis alternatifs</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">BRASSERIE SURREALISTE : facture moyenne en hausse de 67.0%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">AQUALITY : facture moyenne en hausse de 65.9%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">'T HOF VAN OSSEL - MEYSMANS - DE KEERSMAEKER : facture moyenne en hausse de 78.1%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div>
+            <div class="insight high">
+              <div class="insight-header">
+                <span class="insight-cat">Classification</span>
+              </div>
+              <div class="insight-title">25.1% des achats (€44,819) ne sont pas encore classés</div>
+              <div class="insight-detail">Ces achats ne rentrent dans aucun ratio food/beverage cost. Ouvre fournisseurs_mapping.csv et complète les départements.</div>
+              <div class="insight-action">Classer les fournisseurs restants dans fournisseurs_mapping.csv puis relancer etl.py</div>
+            </div>
+            <div class="insight medium">
+              <div class="insight-header">
+                <span class="insight-cat">Dérive de prix</span>
+              </div>
+              <div class="insight-title">BUBBA : facture moyenne en hausse de 45.3%</div>
+              <div class="insight-detail">La facture moyenne est passée de ses premiers mois à ses derniers mois. Vérifie si les prix ont changé ou si les volumes ont augmenté.</div>
+              <div class="insight-action">Comparer les prix ligne à ligne avec les factures</div>
+            </div>
+            <div class="insight medium">
+              <div class="insight-header">
+                <span class="insight-cat">Facture anormale</span>
+              </div>
+              <div class="insight-title">BRASSERIE SURREALISTE : une facture de €5,189 vs moyenne €1,517</div>
+              <div class="insight-detail">Z-score 3.04 — cette facture est statistiquement atypique. Soit une grosse commande, soit une erreur.</div>
+              <div class="insight-action">Vérifier la facture originale</div>
+            </div>
+            <div class="insight medium">
+              <div class="insight-header">
+                <span class="insight-cat">Facture anormale</span>
+              </div>
+              <div class="insight-title">LOBET ROUSSEL SA : une facture de €861 vs moyenne €275</div>
+              <div class="insight-detail">Z-score 3.53 — cette facture est statistiquement atypique. Soit une grosse commande, soit une erreur.</div>
+              <div class="insight-action">Vérifier la facture originale</div>
+            </div>
+            <div class="insight medium">
+              <div class="insight-header">
+                <span class="insight-cat">Facture anormale</span>
+              </div>
+              <div class="insight-title">LOBSTERFISH : une facture de €729 vs moyenne €118</div>
+              <div class="insight-detail">Z-score 3.41 — cette facture est statistiquement atypique. Soit une grosse commande, soit une erreur.</div>
+              <div class="insight-action">Vérifier la facture originale</div>
+            </div>
+            <div class="insight medium">
+              <div class="insight-header">
+                <span class="insight-cat">Avoirs</span>
+              </div>
+              <div class="insight-title">€1,858 d'avoirs/retours détectés</div>
+              <div class="insight-detail">Fournisseurs concernés : TITULUS PICTUS (€-553), TASTEVIN-SPIRIGROS (€-454), TERROIRIST (€-416). Ces crédits ont-ils bien été déduits des factures suivantes ?</div>
+              <div class="insight-action">Vérifier avec le comptable que ces avoirs ont été compensés</div>
+            </div>
+            <div class="insight low">
+              <div class="insight-header">
+                <span class="insight-cat">Tendance mensuelle</span>
+              </div>
+              <div class="insight-title">2026-06 : achats en baisse de 52.5% vs 2026-05</div>
+              <div class="insight-detail">€6,940 ce mois vs €14,614 le mois dernier (Δ €7,674).</div>
+              <div class="insight-action">Vérifier si des livraisons ont été repoussées</div>
+            </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+
+function nav(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const btn  = document.getElementById('theme-btn');
+  const next = root.getAttribute('data-theme') === 'ink' ? 'paper' : 'ink';
+  root.setAttribute('data-theme', next);
+  try { localStorage.setItem('pd-theme', next); } catch(e) {}
+  btn.textContent = next === 'ink' ? 'Thème Papier' : 'Thème Encre';
+}
+
+// Palette Partie Double pour Plotly
+// ink (dark): fond sombre, texte clair
+// paper (light): fond clair, texte foncé
+const isDark = () => document.documentElement.getAttribute('data-theme') === 'ink';
+function pdColors() {
+  return isDark()
+    ? { bg:'rgba(0,0,0,0)', text:'oklch(0.782 0.011 74)', grid:'rgba(200,190,185,0.1)',
+        hover_bg:'oklch(0.182 0.009 54)', hover_border:'rgba(200,190,185,0.25)',
+        hover_text:'oklch(0.945 0.012 85)' }
+    : { bg:'rgba(0,0,0,0)', text:'oklch(0.346 0.011 62)', grid:'rgba(24,18,12,0.1)',
+        hover_bg:'oklch(0.975 0.010 85)', hover_border:'rgba(24,18,12,0.2)',
+        hover_text:'oklch(0.182 0.009 54)' };
+}
+
+// Couleurs catégories (pd-cohérentes)
+const C_CUISINE = 'oklch(0.600 0.208 28)'; // pd-red-500
+const C_SALLE   = 'oklch(0.446 0.012 65)'; // pd-ink-600
+const C_GENERAL = 'oklch(0.662 0.012 70)'; // pd-ink-400
+const C_NC      = 'oklch(0.252 0.010 58)'; // pd-ink-800
+
+const PLOTLY_CFG = {responsive:true, displayModeBar:false};
+const LAYOUT = {
+  paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+  font:{family:'"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace', size:10},
+  margin:{t:10,r:10,b:36,l:55},
+  xaxis:{gridcolor:'rgba(200,190,185,0.12)', zeroline:false, tickfont:{size:9}, linecolor:'rgba(200,190,185,0.15)'},
+  yaxis:{gridcolor:'rgba(200,190,185,0.12)', zeroline:false, tickfont:{size:9}, linecolor:'rgba(200,190,185,0.15)'},
+  legend:{orientation:'h', y:-0.18, font:{size:9}, bgcolor:'rgba(0,0,0,0)'},
+  hoverlabel:{bgcolor:'oklch(0.182 0.009 54)', bordercolor:'rgba(200,190,185,0.3)',
+              font:{size:10, color:'oklch(0.945 0.012 85)'}},
+  colorway:[C_CUISINE, C_SALLE, C_GENERAL, C_NC],
+};
+function layout(overrides){return {...LAYOUT,...overrides}}
+function ax(overrides){return {...LAYOUT.xaxis,...overrides}}
+function ay(overrides){return {...LAYOUT.yaxis,...overrides}}
+
+
+const yms = ["2024-12", "2025-01", "2025-02", "2025-03", "2025-07", "2025-09", "2025-10", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"];
+const totaux = [343.46, 232.09, 839.79, 932.66, 158.29, 94.0, 7105.12, 1136.95, 40537.85, 40159.04, 36964.92, 28548.29, 14614.31, 6939.87];
+const cuisines = [343.46, 232.09, 839.79, 687.23, 158.29, 94.0, 1969.63, 1136.95, 14742.32, 11648.73, 11721.51, 6718.64, 95.06, 29.64];
+const salles = [0, 0, 0, 0, 0, 0, 4803.7, 0, 11493.44, 19455.45, 14824.68, 10764.65, 13176.56, 5578.71];
+const generaux = [0, 0, 0, 245.43, 0, 0, 0, 0, 1051.32, 909.2, 390.4, 626.74, 20.0, 30.0];
+const ncs = [0, 0, 0, 0, 0, 0, 331.79, 0, 13250.77, 8145.66, 10028.33, 10438.26, 1322.69, 1301.52];
+
+// ── Monthly stacked bar
+Plotly.newPlot('ch-monthly', [
+  {name:'Cuisine',    x:yms, y:cuisines, type:'bar', marker:{color:C_CUISINE}},
+  {name:'Salle',     x:yms, y:salles,   type:'bar', marker:{color:C_SALLE}},
+  {name:'Général',   x:yms, y:generaux, type:'bar', marker:{color:C_GENERAL}},
+  {name:'Non classé',x:yms, y:ncs,      type:'bar', marker:{color:C_NC}},
+], layout({barmode:'stack', margin:{t:10,r:10,b:36,l:55}}), PLOTLY_CFG);
+
+// ── Concentration donut
+Plotly.newPlot('ch-conc', [{
+  labels:["BRASSERIE SURREALI", "TASTEVIN-SPIRIGROS", "Urby De Groof en L", "NV Van Aerde", "VANDER ZIJPEN", "Autres"], values:[40945.8, 18463.74, 18339.45, 14712.87, 12363.33, 73781.44999999998],
+  type:'pie', hole:0.6, textfont:{size:10},
+  marker:{colors:[C_CUISINE, C_SALLE, C_GENERAL, 'oklch(0.662 0.012 70)', 'oklch(0.782 0.011 74)', C_NC]},
+  hovertemplate:'%{label}<br>€%{value:,.0f}<br>%{percent}<extra></extra>'
+}], layout({showlegend:true, margin:{t:10,r:10,b:10,l:10},
+             legend:{orientation:'v', font:{size:10}}}), PLOTLY_CFG);
+
+// ── Top supplier series
+const seriesColors = ['oklch(0.600 0.208 28)','oklch(0.530 0.198 28)','oklch(0.452 0.170 28)','oklch(0.346 0.011 62)','oklch(0.446 0.012 65)','oklch(0.546 0.012 68)'];
+const seriesTraces = [
+  {name:"BRASSERIE SURREALISTE", x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[0,5137,12130.96,7984.66,5064.5,8026.18,2602.5]},
+  {name:"TASTEVIN-SPIRIGROS",    x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[3035.62,0,4197.78,3280.09,4198.73,2133.56,1617.96]},
+  {name:"Urby De Groof en Luc O",x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[0,6566.93,3376.74,5818.03,2577.75,0,0]},
+  {name:"NV Van Aerde",          x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[0,6293.49,3852.66,0,4566.72,0,0]},
+  {name:"VANDER ZIJPEN",         x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[0,3395.38,2590.43,3771.35,2606.17,0,0]},
+  {name:"RESTOFRAIS",            x:["2025-10","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06"], y:[0,4091.49,3598.58,882.81,826.03,38.19,0]},
+].map((t,i) => ({
+  ...t, type:'bar',
+  marker:{color:seriesColors[i]},
+  hovertemplate: t.name+'<br>€%{y:,.0f}<extra></extra>'
+}));
+Plotly.newPlot('ch-series', seriesTraces,
+  layout({barmode:'group', margin:{t:10,r:10,b:36,l:55}}), PLOTLY_CFG);
+
+// ── Fixe vs Variable
+const fixes = [0, 0, 0, 245.43, 0, 0, 0, 0, 1051.32, 909.2, 390.4, 626.74, 20.0, 30.0];
+const vars_ = [343.46, 232.09, 839.79, 687.23, 158.29, 94.0, 6773.33, 1136.95, 26372.15, 31122.07, 27626.19, 17867.29, 13271.62, 5608.35];
+Plotly.newPlot('ch-fixvar', [
+  {name:'Fixe',     x:yms, y:fixes, type:'bar', marker:{color:C_CUISINE}},
+  {name:'Variable', x:yms, y:vars_, type:'bar', marker:{color:C_NC}},
+], layout({barmode:'stack', margin:{t:10,r:10,b:36,l:55}}), PLOTLY_CFG);
+
+// ── Cuisine monthly (page cuisine)
+Plotly.newPlot('ch-cuisine-monthly', [
+  {name:'Cuisine', x:yms, y:cuisines, type:'bar',
+    marker:{color:C_CUISINE, opacity:0.85},
+    hovertemplate:'€%{y:,.0f}<extra></extra>'}
+], layout({margin:{t:10,r:10,b:36,l:55}}), PLOTLY_CFG);
+
+// Cuisine donut
+const cuisineSuppliers = [{"name": "Urby De Groof en L", "val": 18339.45}, {"name": "RESTOFRAIS", "val": 9437.1}, {"name": "LOBET ROUSSEL SA", "val": 5785.24}, {"name": "LOBSTERFISH", "val": 4382.08}, {"name": "MDH FOODS SERVICE", "val": 3383.08}, {"name": "'T HOF VAN OSSEL -", "val": 2776.94}, {"name": "MIRO' GROUP", "val": 1979.87}, {"name": "Renard Foods", "val": 1393.63}];
+Plotly.newPlot('ch-cuisine-donut', [{
+  labels: cuisineSuppliers.map(s=>s.name),
+  values: cuisineSuppliers.map(s=>s.val),
+  type:'pie', hole:0.55, textfont:{size:10},
+  marker:{colors:['oklch(0.600 0.208 28)','oklch(0.530 0.198 28)','oklch(0.452 0.170 28)','oklch(0.346 0.011 62)','oklch(0.446 0.012 65)','oklch(0.546 0.012 68)','oklch(0.662 0.012 70)','oklch(0.782 0.011 74)']},
+  hovertemplate:'%{label}<br>€%{value:,.0f}<br>%{percent}<extra></extra>'
+}], layout({showlegend:true, margin:{t:10,r:10,b:10,l:10},
+             legend:{orientation:'v', font:{size:10}}}), PLOTLY_CFG);
+
+// ── Salle monthly
+Plotly.newPlot('ch-salle-monthly', [
+  {name:'Salle', x:yms, y:salles, type:'bar',
+    marker:{color:C_SALLE, opacity:0.85},
+    hovertemplate:'€%{y:,.0f}<extra></extra>'}
+], layout({margin:{t:10,r:10,b:36,l:55}}), PLOTLY_CFG);
+
+// Salle donut
+const salleSuppliers = [{"name": "BRASSERIE SURREALI", "val": 40945.8}, {"name": "TASTEVIN-SPIRIGROS", "val": 18463.74}, {"name": "DEKONINCK", "val": 8418.63}, {"name": "AVINUM", "val": 5519.4}, {"name": "TERROIRIST", "val": 2768.28}, {"name": "DRANKEN GEERS", "val": 1512.88}, {"name": "TITULUS PICTUS", "val": 1051.8}, {"name": "SITALVINI", "val": 550.8}];
+Plotly.newPlot('ch-salle-donut', [{
+  labels: salleSuppliers.map(s=>s.name),
+  values: salleSuppliers.map(s=>s.val),
+  type:'pie', hole:0.55, textfont:{size:10},
+  marker:{colors:['oklch(0.252 0.010 58)','oklch(0.346 0.011 62)','oklch(0.446 0.012 65)','oklch(0.546 0.012 68)','oklch(0.662 0.012 70)','oklch(0.782 0.011 74)','oklch(0.876 0.010 78)','oklch(0.936 0.008 82)']},
+  hovertemplate:'%{label}<br>€%{value:,.0f}<br>%{percent}<extra></extra>'
+}], layout({showlegend:true, margin:{t:10,r:10,b:10,l:10},
+             legend:{orientation:'v', font:{size:10}}}), PLOTLY_CFG);
+
+</script>
+</body>
+</html>
