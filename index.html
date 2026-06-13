@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partie Double</title>
+<style>
+  :root {
+    --ink: oklch(18% 0.02 260);
+    --paper: oklch(97% 0.005 260);
+    --red: oklch(52% 0.22 25);
+    --muted: oklch(50% 0.01 260);
+    --border: oklch(88% 0.01 260);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Inter, -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .logo {
+    font-family: Georgia, serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .tagline {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 3rem;
+  }
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 360px;
+  }
+  .card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: white;
+  }
+  .card:hover {
+    border-color: var(--red);
+    box-shadow: 0 2px 12px oklch(0% 0 0 / 8%);
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .card-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .card-arrow {
+    float: right;
+    color: var(--red);
+    font-size: 1.1rem;
+    margin-top: -1.5rem;
+  }
+</style>
+</head>
+<body>
+  <div class="logo">Partie Double</div>
+  <div class="tagline">Fiscalité &amp; Comptabilité</div>
+  <div class="cards">
+    <a class="card" href="site_educatif.html">
+      <div class="card-title">Site Éducatif</div>
+      <div class="card-desc">Fiscalité &amp; Comptabilité Belge — cours interactifs</div>
+      <div class="card-arrow">→</div>
+    </a>
+    <a class="card" href="dashboard.html">
+      <div class="card-title">Restaurant Dashboard</div>
+      <div class="card-desc">Tableau de bord — ventes, achats &amp; marges</div>
+      <div class="card-arrow">→</div>
+    </a>
+  </div>
+</body>
+</html>
